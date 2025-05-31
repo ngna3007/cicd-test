@@ -20,28 +20,42 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
     - name: Cache build dependencies
       uses: actions/cache@v3
       with:
         path: '**/node_modules'
         key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-    - name: Run setup
-      run: echo "Running setup"
     - name: Install dependencies
-      run: echo "No install command specified for this language"
+      run: npm install
     - name: Build project
-      run: echo "No build command specified for this language"
+      run: |
+        npm run build:clean
+        npm run build:config
+        npm run build
+
   test:
+    needs:
+    - build
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
     - name: Cache test dependencies
       uses: actions/cache@v3
       with:
         path: '**/node_modules'
         key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+    - name: Install dependencies
+      run: npm install
     - name: Run unit-tests
-      run: echo "Running unit-tests"
-    needs:
-    - build
+      run: npm test
